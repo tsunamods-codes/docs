@@ -1,0 +1,39 @@
+language: cpp
+sudo: require
+dist: xenial
+
+os:
+ - linux
+matrix:
+ exclude:
+# Don't build with clang on Linux
+  - os: linux
+    compiler: clang
+
+install:
+- sudo apt-get -y install doxygen graphviz
+
+script:
+- sh parseProjects.sh
+
+deploy:
+  provider: pages
+  local-dir: docs/
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+  keep-history: false
+  on:
+    condition: ${TRAVIS_OS_NAME} = linux
+    branch: master
+
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "eqXxhT2R/eCXwaQC0dn14iB6Rvd7KdEsz9lvcqo/ZCSduHVdQbIcLKxI/gLXjYyPOurAgMDGlbiqe/Sz/29eH+jcYlNsLtDpSoJFsgnWe9KlEqBrbO+eGH5OoAabgJthcGygTwbFnpsiY7SvLG62pSYUrSfToCVkouSiUXeZb5Q="
+
+branches:
+  except:
+    - # Do not build tags that we create when we upload to GitHub Releases
+    - /^(?i:continuous)$/
+    - /^(?i:gh-pages)$/
